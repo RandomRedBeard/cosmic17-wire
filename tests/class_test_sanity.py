@@ -10,7 +10,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 class foo:
 
-    def __init__(self):
+    @value('path.to.init')
+    def __init__(self, i):
         self.__bar = None
 
     @value('path.to.bar')
