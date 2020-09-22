@@ -172,7 +172,8 @@ class value(property):
 
                 # Gives us a list of arguments that we can check off the list as
                 # they we're likely overridden
-                # Update: If we can't bind, we assume the user want's some constructor injected values.
+                # Update: If we can't bind, we assume the user want's 
+                # some constructor injected values.
                 # We will add kwargs we can and let cls__init__ fail.
                 # Update: Move to bind_partial and let cls__init__ fail.
                 arguments = signature.bind_partial(self, *args, **kwargs).arguments
