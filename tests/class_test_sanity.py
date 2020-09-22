@@ -12,6 +12,7 @@ class foo:
 
     def __init__(self, i):
         self.__bar = None
+        self.__i = i
 
     @value('path.to.bar')
     def bar(self):
@@ -20,6 +21,10 @@ class foo:
     @bar.setter
     def bar(self, bar):
         self.__bar = bar
+
+    @value('path.to.i')
+    def i(self):
+        return self.__i
 
 @value.set_parser
 def parser(path: str):
@@ -31,3 +36,4 @@ if __name__ == "__main__":
     f = foo()
 
     assert f.bar == 'ok'
+    assert f.i == 'ok'
