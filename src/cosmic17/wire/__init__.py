@@ -6,7 +6,7 @@ from collections import defaultdict, OrderedDict
 
 logger = logging.getLogger(__name__)
 
-def default_parser(path: str) -> None:
+def default_parser(path: str):
     """
     Default parser does nothing.
 
@@ -19,7 +19,7 @@ def default_parser(path: str) -> None:
 
     return None
 
-class value(property):
+class Value(property):
 
     """
     Decorator class for defining an external path location
@@ -66,7 +66,7 @@ class value(property):
         def set_global_val(global_val):
             global GLOBAL_VAL
             GLOBAL_VAL = global_val
-    
+
     """
 
     _to_wire = list()
@@ -74,6 +74,7 @@ class value(property):
 
     def __init__(self, path):
         self.path = path
+        super().__init__()
 
     def __rcall__(self, func):
 
@@ -104,11 +105,11 @@ class value(property):
             parameters.pop('cls')
 
         # We're gonna guess this is a getter
-        lp = len(parameters)
-        if lp == 0:
+        param_len = len(parameters)
+        if param_len == 0:
             super().__init__(func, self.fset, self.fdel)
         # And this is a setter
-        elif lp == 1:
+        elif param_len == 1:
             super().__init__(self.fget, func, self.fdel)
         # And this is unknown
         else:
@@ -179,7 +180,6 @@ class value(property):
                 # Attempting constructor injection
                 # Setup attr map
                 attr_map = {}
-                value_: value
                 for value_ in values:
                     # One of these functions exists to get here
                     checker = value_.fget if value_.fget else value_.fset
@@ -190,16 +190,18 @@ class value(property):
                 # Constructor injection
                 for param in signature.parameters:
                     logger.debug(f"Param {param}")
-                    
+
                     # I prefer negative case continues
                     if param not in attr_map or param in arguments:
                         continue
 
+                    value_ = attr_map[param]
+
                     logger.debug(f"Attempting constructor injection {param}")
                     try:
                         # Get value from parser path
-                        val = value.parser(value_.path)
-                        
+                        val = Value.parser(value_.path)
+
                         # Update kwargs
                         kwargs[param] = val
 
@@ -215,7 +217,7 @@ class value(property):
                     if value_.fset is None:
                         logger.debug(f"No setter found for {value_} path {value_.path}")
                         continue
-                    
+
                     attr = value_.fset.__name__
 
                     if attr in arguments:
@@ -225,10 +227,10 @@ class value(property):
                     logger.debug(f"Attempting setter injection {attr}")
 
                     try:
-                        val = value.parser(value_.path)
+                        val = Value.parser(value_.path)
                         value_.fset(self, val)
-                    except Exception as e:
-                        logger.debug(f"Setter injection failed {value_.fset} for path {value_.path}")
+                    except:
+                        logger.debug(f"Setter injection failed {value_.fset} for path {value_.path}", exc_info=True)
 
             return new__init__
 
@@ -276,7 +278,7 @@ class value(property):
             # Traverse namespaces
             namespaces = checker.__qualname__.split('.')[:-1]
             try:
-                cns = value.walk_namespace(module, namespaces)
+                cns = Value.walk_namespace(module, namespaces)
             except ModuleNotFoundError:
                 continue
 
@@ -303,8 +305,8 @@ class value(property):
         # Class variable injection
         for cls_, values in cls_map.items():
             logger.debug(f"Creating new __init__ for {cls_}")
-            mp = cls._mapping(cls_.__init__, values)
-            cls_.__init__ = mp.new_init()
+            mapping = cls._mapping(cls_.__init__, values)
+            cls_.__init__ = mapping.new_init()
 
     @classmethod
     def set_parser(cls, parser: Callable):
