@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../src'))
 
 import logging
-from cosmic17.wire import Value
+from cosmic17.wire import value
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -14,7 +14,7 @@ class foo:
         self.__bar = None
         self.__i = i
 
-    @Value('path.to.bar')
+    @value('path.to.bar')
     def bar(self):
         return self.__bar
 
@@ -22,15 +22,15 @@ class foo:
     def bar(self, bar):
         self.__bar = bar
 
-    @Value('path.to.i')
+    @value('path.to.i')
     def i(self):
         return self.__i
 
-@Value.set_parser
+@value.set_parser
 def parser(path: str):
     return 'ok'
 
-Value.wire_all()
+value.wire_all()
 
 if __name__ == "__main__":
     f = foo()

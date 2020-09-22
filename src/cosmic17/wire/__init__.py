@@ -19,7 +19,7 @@ def default_parser(path: str):
 
     return None
 
-class Value(property):
+class value(property):
 
     """
     Decorator class for defining an external path location
@@ -200,7 +200,7 @@ class Value(property):
                     logger.debug(f"Attempting constructor injection {param}")
                     try:
                         # Get value from parser path
-                        val = Value.parser(value_.path)
+                        val = value.parser(value_.path)
 
                         # Update kwargs
                         kwargs[param] = val
@@ -227,7 +227,7 @@ class Value(property):
                     logger.debug(f"Attempting setter injection {attr}")
 
                     try:
-                        val = Value.parser(value_.path)
+                        val = value.parser(value_.path)
                         value_.fset(self, val)
                     except:
                         logger.debug(f"Setter injection failed {value_.fset} for path {value_.path}", exc_info=True)
@@ -278,7 +278,7 @@ class Value(property):
             # Traverse namespaces
             namespaces = checker.__qualname__.split('.')[:-1]
             try:
-                cns = Value.walk_namespace(module, namespaces)
+                cns = value.walk_namespace(module, namespaces)
             except ModuleNotFoundError:
                 continue
 
